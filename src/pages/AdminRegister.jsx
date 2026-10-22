@@ -24,7 +24,7 @@ const AdminRegister = () => {
     setGeneratedUrl('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/business/add', {
+      const response = await fetch('https://my-qr-saas-backend.onrender.com/api/business/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -35,7 +35,7 @@ const AdminRegister = () => {
       if (response.ok) {
         setStatus({ type: 'success', message: 'Business Registered Successfully!' });
         // Real app me localhost ki jagah aapka live domain aayega
-        setGeneratedUrl(`http://localhost:5173/b/${formData.slug}`);
+        setGeneratedUrl(`https://my-qr-saas-backend.onrender.com/b/${formData.slug}`);
       } else {
         setStatus({ type: 'error', message: data.message || 'Registration failed' });
       }
