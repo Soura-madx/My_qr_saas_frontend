@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Instagram, Star } from "lucide-react";
+import { FaInstagram,FaStar } from 'react-icons/fa';
 import ReviewModal from "../pages/ReviewModal";
 const PaymentScreen = () => {
   const { slug } = useParams();
@@ -105,7 +105,7 @@ const PaymentScreen = () => {
             onClick={() => setShowReviewModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition"
           >
-            <Star size={18} className="text-yellow-500" /> Review
+             <FaStar color="#ffc107" size={18} /> Review
           </button>
 
           {business.instagramHandle && (
@@ -115,7 +115,7 @@ const PaymentScreen = () => {
               rel="noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-pink-50 text-pink-600 rounded-lg font-medium hover:bg-pink-100 transition"
             >
-              <Instagram size={18} /> Follow us
+              <FaInstagram size={24} /> Follow us
             </a>
           )}
         </div>
