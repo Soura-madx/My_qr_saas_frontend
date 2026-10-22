@@ -16,7 +16,7 @@ const PaymentScreen = () => {
   useEffect(() => {
     const fetchBusiness = async () => {
       try {
-        const res = await fetch(`https://my-qr-saas-backend.onrender.com/api/business/${slug}`);
+        const res = await fetch(`http://localhost:5000/api/business/${slug}`);
         const data = await res.json();
         if (res.ok) setBusiness(data);
       } catch (error) {
