@@ -29,7 +29,7 @@ const AdminRegister = () => {
     try {
       // Endpoint me se '/add' hata diya taaki backend se match kare
       const response = await fetch(
-        `http://localhost:5000/api/business`, 
+        `https://my-qr-saas-backend.onrender.com/api/business`, 
         {
           method: "POST",
           headers: { 

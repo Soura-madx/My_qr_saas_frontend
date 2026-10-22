@@ -29,7 +29,7 @@ const ReviewModal = ({ isOpen, onClose, business }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/feedback/submit`,
+        `https://my-qr-saas-backend.onrender.com/api/feedback/submit`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
