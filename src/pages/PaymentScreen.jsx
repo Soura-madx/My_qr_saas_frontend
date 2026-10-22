@@ -17,7 +17,7 @@ const PaymentScreen = () => {
     const fetchBusiness = async () => {
       try {
         // Fix: Hardcoded Render URL ki jagah environment variable use kiya
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/business/${slug}`);
+        const res = await fetch(`https://my-qr-saas-backend.onrender.com/api/business/${slug}`);
         const data = await res.json();
         
         if (res.ok) {
