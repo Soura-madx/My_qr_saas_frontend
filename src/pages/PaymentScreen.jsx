@@ -1,129 +1,139 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { FaInstagram, FaStar } from 'react-icons/fa';
-import ReviewModal from "../pages/ReviewModal";
+import { FaInstagram, FaWhatsapp, FaGlobe, FaStar } from 'react-icons/fa';
 
-const PaymentScreen = () => {
+const CustomerReview = () => {
   const { slug } = useParams();
   const [business, setBusiness] = useState(null);
-  const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(true);
+  
+  // Review States
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [feedbackText, setFeedbackText] = useState("");
 
-  const [hasInitiatedPayment, setHasInitiatedPayment] = useState(false);
-  const [showReviewModal, setShowReviewModal] = useState(false);
-
-  // Backend se business data fetch karna
   useEffect(() => {
     const fetchBusiness = async () => {
       try {
-        // Fix: Hardcoded Render URL ki jagah environment variable use kiya
-        const res = await fetch(`https://my-qr-saas-backend.onrender.com/api/business/${slug}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/business/${slug}`);
         const data = await res.json();
-        
-        if (res.ok) {
-          setBusiness(data);
-        } else {
-          setBusiness(null);
-        }
+        if (res.ok) setBusiness(data);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-    
     if (slug) fetchBusiness();
   }, [slug]);
 
-  // Page Visibility API trick
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && hasInitiatedPayment) {
-        setShowReviewModal(true);
-        setHasInitiatedPayment(false); 
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [hasInitiatedPayment]);
-
-  const handleUPIPayment = () => {
-    if (!amount || amount <= 0) return alert("Please enter a valid amount");
-
-    const upiUrl = `upi://pay?pa=${business.upiId}&pn=${business.name}&am=${amount}&cu=INR`;
-    window.location.href = upiUrl;
-    setHasInitiatedPayment(true);
+  const handleSubmit = async () => {
+    if (rating === 0) return alert("Please give a star rating first!");
+    // Yeh API hum aage wale steps me properly connect karenge
+    alert(`Rating: ${rating} Star, Feedback: ${feedbackText} \nSubmitted!`);
   };
 
-  if (loading) return <div className="text-center mt-20 text-gray-500 font-medium">Loading Business...</div>;
-  
-  if (!business) return (
-    <div className="text-center mt-20 p-4">
-      <h2 className="text-2xl font-bold text-red-500 mb-2">Business not found!</h2>
-      <p className="text-gray-600">Please check if the QR link is correct.</p>
-    </div>
-  );
+  const getRatingText = () => {
+    switch (hover || rating) {
+      case 1: return "Poor";
+      case 2: return "Fair";
+      case 3: return "Good";
+      case 4: return "Very Good";
+      case 5: return "Excellent";
+      default: return "";
+    }
+  };
+
+  if (loading) return <div className="min-h-screen bg-[#202124] flex items-center justify-center text-white">Loading...</div>;
+  if (!business) return <div className="min-h-screen bg-[#202124] flex items-center justify-center text-red-400">Business not found!</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 mt-10 text-center border-t-4 border-blue-600">
-        <h1 className="text-2xl font-bold text-gray-800 mb-1">{business.name}</h1>
-        <p className="text-sm text-gray-500 mb-6">Enter amount to pay via any UPI App</p>
-
-        <div className="relative mb-6">
-          <span className="absolute left-4 top-3 text-xl font-bold text-gray-700">₹</span>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0"
-            className="w-full pl-10 pr-4 py-3 text-2xl border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-600 transition-colors"
-          />
+    <div className="min-h-screen bg-[#202124] text-[#e8eaed] font-sans flex flex-col items-center">
+      
+      {/* Header Section */}
+      <div className="w-full max-w-md px-4 py-6 flex items-center gap-4 border-b border-[#3c4043]">
+        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-xl font-bold">
+          {business.name.charAt(0).toUpperCase()}
         </div>
-
-        <button
-          onClick={handleUPIPayment}
-          className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 active:scale-95 transition-all text-lg mb-6"
-        >
-          Pay via UPI
-        </button>
-
-        <div className="flex items-center my-4">
-          <div className="flex-grow border-t border-gray-200"></div>
-          <span className="px-3 text-gray-400 text-sm">OR</span>
-          <div className="flex-grow border-t border-gray-200"></div>
-        </div>
-
-        <div className="flex gap-3 justify-center">
-          <button
-            onClick={() => setShowReviewModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition"
-          >
-             <FaStar color="#ffc107" size={18} /> Review
-          </button>
-
-          {business.instagramHandle && (
-            <a
-              href={`https://instagram.com/${business.instagramHandle}`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-pink-50 text-pink-600 rounded-lg font-medium hover:bg-pink-100 transition"
-            >
-              <FaInstagram size={24} /> Follow us
-            </a>
-          )}
+        <div>
+          <h1 className="text-lg font-medium">{business.name}</h1>
+          <p className="text-xs text-[#9aa0a6]">Posting publicly across Google (Simulated)</p>
         </div>
       </div>
 
-      {/* Actual Review Modal - Extra placeholder hata diya gaya hai */}
-      <ReviewModal
-        isOpen={showReviewModal}
-        onClose={() => setShowReviewModal(false)}
-        business={business}
-      />
+      {/* Main Form Section */}
+      <div className="w-full max-w-md px-4 py-8 flex flex-col items-center">
+        
+        {/* 5-Star Rating System */}
+        <div className="flex gap-2 mb-2">
+          {[...Array(5)].map((star, index) => {
+            const currentRating = index + 1;
+            return (
+              <label key={index}>
+                <input
+                  type="radio"
+                  name="rating"
+                  value={currentRating}
+                  onClick={() => setRating(currentRating)}
+                  className="hidden"
+                />
+                <FaStar
+                  className="cursor-pointer transition-colors duration-200"
+                  size={42}
+                  color={currentRating <= (hover || rating) ? "#fbbc04" : "#5f6368"}
+                  onMouseEnter={() => setHover(currentRating)}
+                  onMouseLeave={() => setHover(0)}
+                />
+              </label>
+            );
+          })}
+        </div>
+        <p className="text-[#fbbc04] font-medium h-6 mb-6">{getRatingText()}</p>
+
+        {/* Text Area */}
+        <div className="w-full bg-[#303134] rounded-xl p-4 mb-6 border border-[#5f6368] focus-within:border-blue-400 transition-colors">
+          <textarea
+            className="w-full bg-transparent outline-none resize-none text-[#e8eaed] placeholder-[#9aa0a6]"
+            rows="4"
+            placeholder="Share details of your own experience at this place"
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+          ></textarea>
+        </div>
+
+        {/* Action Buttons (Socials) */}
+        <div className="flex flex-wrap justify-center gap-3 w-full mb-8">
+          {business.whatsappNumber && (
+            <a href={`https://wa.me/${business.whatsappNumber}`} target="_blank" rel="noreferrer" 
+               className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#303134] border border-[#5f6368] hover:bg-[#3c4043]">
+              <FaWhatsapp color="#25D366" /> WhatsApp
+            </a>
+          )}
+          {business.instagramHandle && (
+            <a href={`https://instagram.com/${business.instagramHandle}`} target="_blank" rel="noreferrer"
+               className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#303134] border border-[#5f6368] hover:bg-[#3c4043]">
+              <FaInstagram color="#E1306C" /> Instagram
+            </a>
+          )}
+          {business.website && (
+            <a href={business.website} target="_blank" rel="noreferrer"
+               className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#303134] border border-[#5f6368] hover:bg-[#3c4043]">
+              <FaGlobe color="#8ab4f8" /> Website
+            </a>
+          )}
+        </div>
+
+        {/* Post Button */}
+        <button 
+          onClick={handleSubmit}
+          className="w-full bg-[#8ab4f8] text-[#202124] font-medium py-3 rounded-full hover:bg-[#aecbfa] transition-colors"
+        >
+          Post
+        </button>
+
+      </div>
     </div>
   );
 };
 
-export default PaymentScreen;
+export default CustomerReview;
